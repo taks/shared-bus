@@ -1,7 +1,16 @@
 #[cfg(feature = "eh-alpha")]
 use embedded_hal_alpha::i2c as i2c_alpha;
+#[cfg(feature = "eh-alpha")]
+use embedded_hal_alpha::i2c::blocking::I2c as i2c_alpha_I2c;
+#[cfg(feature = "eh-alpha")]
+use embedded_hal_alpha::i2c::blocking::Operation as i2c_alpha_Operation;
+
 #[cfg(feature = "eh-alpha-9")]
 use embedded_hal_alpha_9::i2c as i2c_alpha;
+#[cfg(feature = "eh-alpha-9")]
+use embedded_hal_alpha_9::i2c::I2c as i2c_alpha_I2c;
+#[cfg(feature = "eh-alpha-9")]
+use embedded_hal_alpha_9::i2c::Operation as i2c_alpha_Operation;
 
 use embedded_hal::adc;
 use embedded_hal::blocking::i2c;
@@ -77,9 +86,9 @@ where
 }
 
 #[cfg(any(feature = "eh-alpha", feature = "eh-alpha-9"))]
-impl<'a, M: crate::BusMutex> i2c_alpha::blocking::I2c for I2cProxy<'a, M>
+impl<'a, M: crate::BusMutex> i2c_alpha_I2c for I2cProxy<'a, M>
 where
-    M::Bus: i2c_alpha::blocking::I2c,
+    M::Bus: i2c_alpha_I2c,
 {
     fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
         self.mutex.lock(|bus| bus.read(address, buffer))
@@ -122,14 +131,14 @@ where
     fn transaction<'b>(
         &mut self,
         address: u8,
-        operations: &mut [i2c_alpha::blocking::Operation<'b>],
+        operations: &mut [i2c_alpha_Operation<'b>],
     ) -> Result<(), Self::Error> {
         self.mutex.lock(|bus| bus.transaction(address, operations))
     }
 
     fn transaction_iter<'b, O>(&mut self, address: u8, operations: O) -> Result<(), Self::Error>
     where
-        O: IntoIterator<Item = i2c_alpha::blocking::Operation<'b>>,
+        O: IntoIterator<Item = i2c_alpha_Operation<'b>>,
     {
         self.mutex
             .lock(|bus| bus.transaction_iter(address, operations))
